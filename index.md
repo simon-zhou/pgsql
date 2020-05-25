@@ -1,10 +1,15 @@
 ## Welcome to PGSQL
 
-PG uses a variant of L&Y algorithm for concurrent access to B-tree, which is also referred as BLink-tree. Specifically, L&Y requires a B-tree to have:
-- A high-key for each page and it's greater than or equal to each tuple on that page. This high-key is only for pivot purpose when trying to find a tuple greater than any element on that page, we know that the page has been split so that we should move right.
-- A **next** link to the right sibling, not only for the page split mentioned in above case, but also can be used for range scan.
+PG uses a variant of L&Y algorithm for concurrent access to B-tree, which is also referred as BLink-tree. Specifically, L&Y requires a B-tree to have a **high-key** which is an upper bound on the keys on that page and a **next** link to the right sibling. These two additions make it possible detect a concurrent page split, which allows the tree to be searched without holding any read locks.
 
-In addition to that, PG also have a **prev** link to the left sibling for reverse scan.
+When a search follows a downlink to a child page, it compares the page's high key with the search key. If the search key is greater than the high key, the page must have been split concurrently, and you must follow the right-link to find the new page containing the key range you're looking for. This might need to be repeated, if the page has been split more than once.
+
+In addition to that, PG also have a **prev** link to the left sibling for reverse scan. There are a few optimizations in PG to make B-tree more efficient:
+ - HOT (Heap Only Tuple)
+ - Index-only Scan
+ - Suffix Truncation
+
+
 
 Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
 
