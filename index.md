@@ -1,6 +1,10 @@
 ## Welcome to PGSQL
 
-You can use the [editor on GitHub](https://github.com/simon-zhou/pgsql.github.io/edit/master/index.md) to maintain and preview the content for your website in Markdown files.
+PG uses a variant of L&Y algorithm for concurrent access to B-tree, which is also referred as BLink-tree. Specifically, L&Y requires a B-tree to have:
+- A high-key for each page and it's greater than or equal to each tuple on that page. This high-key is only for pivot purpose when trying to find a tuple greater than any element on that page, we know that the page has been split so that we should move right.
+- A **next** link to the right sibling, not only for the page split mentioned in above case, but also can be used for range scan.
+
+In addition to that, PG also have a **prev** link to the left sibling for reverse scan.
 
 Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
 
