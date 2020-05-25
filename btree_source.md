@@ -25,8 +25,8 @@ Definition of **ItemIdData** and **IndexTuple**:
 typedef struct ItemIdData
 {
 	unsigned	lp_off:15,		/* offset to tuple (from start of page) */
-				lp_flags:2,		/* state of line pointer, see below */
-				lp_len:15;		/* byte length of tuple */
+			lp_flags:2,		/* state of line pointer, see below */
+			lp_len:15;		/* byte length of tuple */
 } ItemIdData;
 
 typedef ItemIdData *ItemId;
@@ -45,9 +45,9 @@ typedef struct IndexTupleData
 	 * ---------------
 	 */
 
-	unsigned short t_info;		/* various info about tuple */
+	unsigned short t_info;	/* various info about tuple */
 
-} IndexTupleData;				/* MORE DATA FOLLOWS AT END OF STRUCT */
+} IndexTupleData;		/* MORE DATA FOLLOWS AT END OF STRUCT */
 
 typedef IndexTupleData *IndexTuple;
 ```
@@ -74,9 +74,9 @@ typedef struct PageHeaderData
 {
 	/* XXX LSN is member of *any* block, not only page-organized ones */
 	PageXLogRecPtr pd_lsn;		/* LSN: next byte after last byte of xlog
-								 * record for last change to this page */
+					 * record for last change to this page */
 	uint16		pd_checksum;	/* checksum */
-	uint16		pd_flags;		/* flag bits, see below */
+	uint16		pd_flags;	/* flag bits, see below */
 	LocationIndex pd_lower;		/* offset to start of free space */
 	LocationIndex pd_upper;		/* offset to end of free space */
 	LocationIndex pd_special;	/* offset to start of special space */
