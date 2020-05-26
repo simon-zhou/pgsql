@@ -6,7 +6,7 @@ When a search follows a downlink to a child page, it compares the page's high ke
 
 In addition to that, PG also have a **prev** link to the left sibling for reverse scan. There are a few optimizations in PG to make B-tree more efficient:
  - HOT (Heap Only Tuple)
- - Index-only Scan
+ - Index-only Scan (Covering Index)
  - Suffix Truncation
 
 ## B-tree implementation
