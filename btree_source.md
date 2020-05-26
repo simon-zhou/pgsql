@@ -148,3 +148,27 @@ typedef IndexAttributeBitMapData * IndexAttributeBitMap;
 	)
 )
 ```
+
+Heap TID is stored differently, depending on whether it's a pivot tuple or posting tuple:
+
+```
+// nbtree.h
+static inline ItemPointer BTreeTupleGetHeapTID(IndexTuple itup)
+{
+	if (BTreeTupleIsPivot(itup))
+	{
+		/* Pivot tuple heap TID representation? */
+		if ((ItemPointerGetOffsetNumberNoCheck(&itup->t_tid) & BT_PIVOT_HEAP_TID_ATTR) != 0)
+			return (ItemPointer) ((char *) itup + IndexTupleSize(itup) - sizeof(ItemPointerData));
+		/* Heap TID attribute was truncated */
+		return NULL;
+	}
+	else if (BTreeTupleIsPosting(itup))
+	        /* This returns the first/lowest heap TID in the case of a posting list tuple. */
+		return BTreeTupleGetPosting(itup);
+
+	return &itup->t_tid;
+}
+```
+
+When we say TID is a tiebreaker, the logic is really in **_bt_compare**. Generally, we consider TID as additional key for each tuple.
