@@ -124,4 +124,27 @@ typedef IndexAttributeBitMapData * IndexAttributeBitMap;
 	? ((Size)MAXALIGN(sizeof(IndexTupleData)))
 	: ((Size)MAXALIGN(sizeof(IndexTupleData) + sizeof(IndexAttributeBitMapData)))
 )
+
+// This is to get attribute data, from itup.h
+#define index_getattr(tup, attnum, tupleDesc, isnull)
+(
+	AssertMacro(PointerIsValid(isnull) && (attnum) > 0),
+	*(isnull) = false,
+	!IndexTupleHasNulls(tup) ?
+	(
+		TupleDescAttr((tupleDesc), (attnum)-1)->attcacheoff >= 0 ?
+		(
+			fetchatt(TupleDescAttr((tupleDesc), (attnum)-1),
+			(char *) (tup) + IndexInfoFindDataOffset((tup)->t_info)
+			+ TupleDescAttr((tupleDesc), (attnum)-1)->attcacheoff)
+		)
+		: nocache_index_getattr((tup), (attnum), (tupleDesc))
+	)
+	:
+	(
+		(att_isnull((attnum)-1, (char *)(tup) + sizeof(IndexTupleData)))
+		? (*(isnull) = true, (Datum)NULL)
+		: (nocache_index_getattr((tup), (attnum), (tupleDesc)))
+	)
+)
 ```
