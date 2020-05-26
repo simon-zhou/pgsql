@@ -17,7 +17,7 @@ With a leaf page and its offset, we can get the **IndexTuple** this way:
 itup = (IndexTuple) PageGetItem(page, PageGetItemId(page, offnum));
 ```
 
-Generally a page has line pointers of type **ItemIdData**, which has two bits flags, 15 bits offset within that page and 15 bits byte length of the tuple. By using the offset we can get to **IndexTuple**.
+Generally a page has line pointers of type **ItemIdData**, which has 2 bits flags, 15 bits offset within that page and 15 bits byte length of the tuple. By using the offset we can get to **IndexTuple**.
 
 Definition of **ItemIdData** and **IndexTuple**:
 
@@ -86,4 +86,42 @@ typedef struct PageHeaderData
 } PageHeaderData;
 
 typedef PageHeaderData *PageHeader;
+```
+
+**IndexTuple** has below structure with user-defined (not system) attributes. The attributes data is appened after the **IndexTuple**. Depends on whethere flag INDEX_NULL_MASK is turned on, there could be index attribute bitmap data (used for bitmap scan?).
+
+```
+// tupdesc.h
+typedef struct TupleDescData
+{
+	int			natts;		/* number of attributes in the tuple */
+	Oid			tdtypeid;	/* composite type ID for tuple type */
+	int32		tdtypmod;		/* typmod for tuple type */
+	int			tdrefcount;	/* reference count, or -1 if not counting */
+	TupleConstr *constr;			/* constraints, or NULL if none */
+	/* attrs[N] is the description of Attribute Number N+1 */
+	FormData_pg_attribute attrs[FLEXIBLE_ARRAY_MEMBER];
+} TupleDescData;
+typedef struct TupleDescData *TupleDesc;
+
+/*
+ * All index tuples start with IndexTupleData.  If the HasNulls bit is set,
+ * this is followed by an IndexAttributeBitMapData.  The index attribute
+ * values follow, beginning at a MAXALIGN boundary.
+ */
+// itup.h
+typedef struct IndexAttributeBitMapData
+{
+	bits8		bits[(INDEX_MAX_KEYS + 8 - 1) / 8];
+}			IndexAttributeBitMapData;
+
+typedef IndexAttributeBitMapData * IndexAttributeBitMap;
+
+
+#define IndexInfoFindDataOffset(t_info)
+(
+	(!((t_info) & INDEX_NULL_MASK))
+	? ((Size)MAXALIGN(sizeof(IndexTupleData)))
+	: ((Size)MAXALIGN(sizeof(IndexTupleData) + sizeof(IndexAttributeBitMapData)))
+)
 ```
