@@ -9,9 +9,13 @@ In addition to that, PG also have a **prev** link to the left sibling for revers
  - Index-only Scan (Covering Index)
  - Suffix Truncation
 
-## B-tree implementation
+## B-tree Implementation
 
 [btree_source.md](btree_source.md)
+
+## Open Questions
+- How does index only scan works while the index doesn't store row visibility info? How are visibility map and vacuuming coming into play?
+
 
 Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
 
