@@ -171,4 +171,4 @@ static inline ItemPointer BTreeTupleGetHeapTID(IndexTuple itup)
 }
 ```
 
-When we say TID is a tiebreaker, the logic is really in **_bt_compare**. Generally, we consider TID as additional key for each tuple.
+When we say TID is a tiebreaker, the logic is really in **_bt_compare** from **nbtsearch.c**. Generally, we consider TID as additional key for each tuple.
