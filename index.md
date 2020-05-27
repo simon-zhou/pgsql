@@ -22,6 +22,8 @@ Q: What is INCLUDE index then?
 
 A: Before INCLUDE index and if you want to query non-key columns, you have to check the heap. Or maybe the workaround is to have the non-key columns part of multi-column index. This is OK but with some limitations, eg, you cannot enforce uniqueness on the keys and the non-key columns can only be trailing columns (see [here](https://www.postgresql.org/docs/12/indexes-multicolumn.html)). All these limitations are gone with INCLUDE index. Details can be found [here](https://www.postgresql.org/docs/12/indexes-index-only-scans.html).
 
+The INCLUDE columns exist solely to allow more queries to benefit from index-only scans.  Also, such columns don't need to have appropriate operator classes.  Expressions are not supported as INCLUDE columns since they cannot be used in index-only scans. In B-tree indexes INCLUDE columns are truncated from pivot index tuples (tuples located in non-leaf pages and high keys).  Therefore, B-tree indexes now might have variable number of attributes.  This patch also provides generic facility to support that: pivot tuples contain number of their attributes in t_tid.ip_posid. See details from commit 8224de4f42ccf98e08db07b43d52fed72f962ebb. Proposal is [here](https://www.postgresql.org/message-id/flat/56168952.4010101@postgrespro.ru).
+
 ### Markdown
 
 Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
