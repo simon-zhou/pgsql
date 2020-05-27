@@ -15,6 +15,7 @@ In addition to that, PG also have a **prev** link to the left sibling for revers
 
 ## Open Questions
 Q: How does index only scan works while the index doesn't store row visibility info? How are visibility map and vacuuming coming into play?
+
 A: Visibility info is stored on heap. When doing index-only scan, it checks heap page visibility info in visibility map, which is much smaller than heap thus smaller IO cost. Each page has two bits in the visibility map, the first one is the page visibility info and the 2nd one is about whether all tuples on the page have been frozen (anti-wraparound vacuum doesn't need to visit the page). Visibility map bits are only set by vacuum, but are cleared by any data-modifying operations on a page ([source](https://www.postgresql.org/docs/current/storage-vm.html)). More about index-only scan [here](https://www.postgresql.org/docs/10/indexes-index-only-scans.html).
 
 ### Markdown
