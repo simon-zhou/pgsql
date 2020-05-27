@@ -18,6 +18,10 @@ Q: How does index only scan works while the index doesn't store row visibility i
 
 A: Visibility info is stored on heap. When doing index-only scan, it checks heap page visibility info in visibility map, which is much smaller than heap thus smaller IO cost. Each page has two bits in the visibility map, the first one is the page visibility info and the 2nd one is about whether all tuples on the page have been frozen (anti-wraparound vacuum doesn't need to visit the page). Visibility map bits are only set by vacuum, but are cleared by any data-modifying operations on a page ([source](https://www.postgresql.org/docs/current/storage-vm.html)). More about index-only scan [here](https://www.postgresql.org/docs/10/indexes-index-only-scans.html).
 
+Q: What is INCLUDE index then?
+
+A: Before INCLUDE index and if you want to query non-key columns, you have to check the heap. Or maybe the workaround is to have the non-key columns part of multi-column index. This is OK but with some limitations, eg, you cannot enforce uniqueness on the keys and the non-key columns can only be trailing columns (see [here](https://www.postgresql.org/docs/12/indexes-multicolumn.html)). All these limitations are gone with INCLUDE index. Details can be found [here](https://www.postgresql.org/docs/12/indexes-index-only-scans.html).
+
 ### Markdown
 
 Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
