@@ -29,6 +29,10 @@ The INCLUDE columns exist solely to allow more queries to benefit from index-onl
 
 A: Vacuuming does three things: to remove dead tuples created for MVCC (defragmentation), to update data statistics for planner and to avoid transaction ID wraparound, which involves freeze tuples old enough. This is best explained [here](https://www.postgresql.org/docs/13/routine-vacuuming.html)
 
+### Q: Why HOT (Heap Only Tuple) and how does it work?
+
+A: Without HOT, a new index tuple needs to be inserted every time an update happens, due to MVCC. The old index tuple points to the old heap tuple and the new index tuple points to the new heap tuple. With HOT, only new heap tuple is inserted and index tuple doesn't need to be inserted. This way we can save some IO. It works when the new heap tuple is on the same page as the old heap tuple. The old heap tuple will have "pointer" pointing to the new tuple. This is explained [here](http://www.interdb.jp/pg/pgsql07.html)
+
 ## References
 [Indexes in PostgreSQL](https://postgrespro.com/blog/pgsql/3994098)
 
