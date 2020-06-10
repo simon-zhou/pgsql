@@ -8,12 +8,13 @@ Not sure if this is true. It looks like when using bind parameters, the optimize
 
 
 This shows that a single SQL statement can use two indexes.
+```
 create table emp(id serial primary key, age integer, month integer);
 create index emp_age on emp(age);
 create index emp_month on emp(month);
 insert into emp select i, i%100+1, i%12+1 from generate_series(1,5000000) s(i);
 explain analyze select * from emp where month=10 and age > 40;
-```
+
                                                               QUERY PLAN
 ---------------------------------------------------------------------------------------------------------------------------------------
  Bitmap Heap Scan on emp  (cost=12035.00..32452.71 rows=10448 width=12) (actual time=255.396..792.847 rows=16666 loops=1)
