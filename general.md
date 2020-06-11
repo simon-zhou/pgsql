@@ -28,3 +28,8 @@ explain analyze select * from emp where month=10 and age > 40;
  Planning Time: 7.509 ms
  Execution Time: 794.582 ms
 ```
+
+
+## Full Text Search
+
+A tsvector value merges different variants of the same word and removes duplicates to create a sorted list of distinct words called lexemes. See good explanation [here](https://forestry.io/blog/full-text-searching-with-postgres/)
