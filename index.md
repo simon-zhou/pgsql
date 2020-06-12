@@ -9,6 +9,8 @@ In addition to that, PG also have a **prev** link to the left sibling for revers
  - Index-only Scan (Covering Index)
  - Suffix Truncation
 
+## [WAL](wal.md)
+
 ## B-tree Implementation
 
 [btree_source.md](btree_source.md)
