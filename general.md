@@ -33,3 +33,7 @@ explain analyze select * from emp where month=10 and age > 40;
 ## Full Text Search
 
 A tsvector value merges different variants of the same word and removes duplicates to create a sorted list of distinct words called lexemes. See good explanation [here](https://forestry.io/blog/full-text-searching-with-postgres/)
+
+## Bitmap Index
+
+Bitmap index is a technique from data warehouse world. It's most efficient with low cardinality column. It doesn't play well with write-heavy or even moderate concurrent write use case. Oracle has bitmap index while PG doesn't have it.
