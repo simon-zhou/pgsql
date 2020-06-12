@@ -39,6 +39,8 @@ Both xl_rmid and xl_info are variables related to resource managers, which are c
 
 Here are some representative examples how resource managers work in the following:
 
-** If INSERT statement is issued, the header variables xl_rmid and xl_info of its XLOG record are set to 'RM_HEAP' and 'XLOG_HEAP_INSERT' respectively. When recovering the database cluster, the RM_HEAP's function heap_xlog_insert() selected according to the xl_info replays this XLOG record.**
-** Though it is similar for UPDATE statement, the header variable xl_info of the XLOG record is set to 'XLOG_HEAP_UPDATE', and the RM_HEAP's function heap_xlog_update() replays its record when the database recovers.**
-** When a transaction commits, the header variables xl_rmid and xl_info of its XLOG record are set to 'RM_XACT' and to 'XLOG_XACT_COMMIT' respectively. When recovering the database cluster, the function xact_redo_commit() replays this record.**
+- If INSERT statement is issued, the header variables xl_rmid and xl_info of its XLOG record are set to 'RM_HEAP' and 'XLOG_HEAP_INSERT' respectively. When recovering the database cluster, the RM_HEAP's function heap_xlog_insert() selected according to the xl_info replays this XLOG record.
+
+- Though it is similar for UPDATE statement, the header variable xl_info of the XLOG record is set to 'XLOG_HEAP_UPDATE', and the RM_HEAP's function heap_xlog_update() replays its record when the database recovers.
+
+- When a transaction commits, the header variables xl_rmid and xl_info of its XLOG record are set to 'RM_XACT' and to 'XLOG_XACT_COMMIT' respectively. When recovering the database cluster, the function xact_redo_commit() replays this record.
