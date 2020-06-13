@@ -36,4 +36,4 @@ A tsvector value merges different variants of the same word and removes duplicat
 
 ## Bitmap Index
 
-Bitmap index is a technique from data warehouse world. It's most efficient with low cardinality column. It doesn't play well with write-heavy or even moderate concurrent write use case. Oracle has bitmap index while PG doesn't have it.
+[Bitmap index](https://en.wikipedia.org/wiki/Bitmap_index) is a technique from data warehouse world. It's most efficient with low cardinality column. It doesn't play well with write-heavy or even moderate concurrent write use case. Oracle has bitmap index while PG doesn't have it.
