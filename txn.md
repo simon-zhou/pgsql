@@ -11,4 +11,4 @@ Unfortunately, the SQL standard's definition of isolation levels is flawed - it 
 
 ## References:
 
-[Consistency Models](https://jepsen.io/consistency)
+[Consistency Models](https://jepsen.io/consistency), from [jepsen](https://jepsen.io/)
