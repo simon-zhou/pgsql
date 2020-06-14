@@ -188,3 +188,12 @@ typedef struct CheckPoint
   TransactionId oldestActiveXid;
 } CheckPoint;
 ```
+
+## Database Recovery in PostgreSQL
+
+The first thing is how PostgreSQL begin the recovery process. When PostgreSQL starts up, it reads the pg_control file at first. The followings are the details of the recovery processing from that point.
+
+- PostgreSQL reads all items of the pg_control file when it starts. If the state item is in 'in production', PostgreSQL will go into recovery-mode because it means that the database was not stopped normally; if 'shut down', it will go into normal startup-mode.
+- PostgreSQL reads the latest checkpoint record, which location is written in the pg_control file, from the appropriate WAL segment file, and gets the REDO point from the record. If the latest checkpoint record is invalid, PostgreSQL reads the one prior to it. If both records are unreadable, it gives up recovering by itself. (Note that the prior checkpoint is not stored from PostgreSQL 11.)
+- Proper resource managers read and replay XLOG records in sequence from the REDO point until they come to the last point of the latest WAL segment. When a XLOG record is replayed and if it is a backup block, it will be overwritten on the corresponding table's page regardless of its LSN. Otherwise, a (non-backup block's) XLOG record will be replayed only if the LSN of this record is larger than the pd_lsn of a corresponding page.
+
