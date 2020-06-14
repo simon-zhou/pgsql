@@ -139,3 +139,13 @@ exec_simple_query() @postgres.c
                                            */
 ```
 
+There are a few cases PG writes xlog records into the WAL segment:
+- One running transaction has committed or has aborted (abort has xlog?)
+- The WAL buffer has been filled up with many tuples. (wal_buffers)
+- WAL writer process writes periodically.
+
+Be noted that SELECT statement may also write xlog records, when deletion of unnecessary tuples and defragmentation of the necessary tuples in pages with HOT.
+
+WAL writer is a background process to check the WAL buffer periodically to write all unwritten xlog records into the WAL segments. The purpose of this process is to avoid burst of xlog records. In version 9.1 or earlier, the background writer process did both checkpointing and dirty-page writing.
+
+
