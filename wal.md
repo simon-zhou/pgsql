@@ -148,4 +148,43 @@ Be noted that SELECT statement may also write xlog records, when deletion of unn
 
 WAL writer is a background process to check the WAL buffer periodically to write all unwritten xlog records into the WAL segments. The purpose of this process is to avoid burst of xlog records. In version 9.1 or earlier, the background writer process did both checkpointing and dirty-page writing.
 
-Not to be confused with WAL writer process, checkpointing process prepares database recovery (redo point) and clean dirty pages in the shared buffer pool.
+Not to be confused with WAL writer process, checkpointing process prepares database recovery (redo point) and clean dirty pages in the shared buffer pool. Here are what checkpointing process does:
+
+- After a checkpoint process starts, the REDO point is stored in memory; REDO point is the location to write the XLOG record at the moment when the latest checkpoint is started, and is the starting point of database recovery.
+- A XLOG record of this checkpoint (i.e. checkpoint record) is written to the WAL buffer. The data-portion of the record is defined by the structure CheckPoint, which contains several variables such as the REDO point stored with step (1).
+In addition, the location to write checkpoint record is literally called the checkpoint.
+- All data in shared memory (e.g. the contents of the clog, etc..) are flushed to the storage.
+- All dirty pages on the shared buffer pool are written and flushed into the storage, gradually.
+- The pg_control file is updated. This file contains the fundamental information such as the location where the checkpoint record has written (a.k.a. checkpoint location). The details of this file later.
+
+To summarize the description above from the viewpoint of the database recovery, checkpointing creates the checkpoint record which contains the REDO point, and stores the checkpoint location and more into the pg_control file. Therefore, PostgreSQL enables to recover itself by replaying WAL data from the REDO point (obtained from the checkpoint record) provided by the pg_control file.
+
+```
+typedef struct CheckPoint
+{
+  XLogRecPtr      redo;           /* next RecPtr available when we began to
+                                   * create CheckPoint (i.e. REDO start point) */
+  TimeLineID      ThisTimeLineID; /* current TLI */
+  TimeLineID      PrevTimeLineID; /* previous TLI, if this record begins a new
+                                   * timeline (equals ThisTimeLineID otherwise) */
+  bool            fullPageWrites; /* current full_page_writes */
+  uint32          nextXidEpoch;   /* higher-order bits of nextXid */
+  TransactionId   nextXid;        /* next free XID */
+  Oid             nextOid;        /* next free OID */
+  MultiXactId     nextMulti;      /* next free MultiXactId */
+  MultiXactOffset nextMultiOffset;/* next free MultiXact offset */
+  TransactionId   oldestXid;      /* cluster-wide minimum datfrozenxid */
+  Oid             oldestXidDB;    /* database with minimum datfrozenxid */
+  MultiXactId     oldestMulti;    /* cluster-wide minimum datminmxid */
+  Oid             oldestMultiDB;  /* database with minimum datminmxid */
+  pg_time_t       time;           /* time stamp of checkpoint */
+
+ /*
+  * Oldest XID still running. This is only needed to initialize hot standby
+  * mode from an online checkpoint, so we only bother calculating this for
+  * online checkpoints and only when wal_level is hot_standby. Otherwise
+  * it's set to InvalidTransactionId.
+  */
+  TransactionId oldestActiveXid;
+} CheckPoint;
+```
