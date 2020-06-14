@@ -8,7 +8,7 @@ Full page writes are needed because a page write that is in process during an op
 
 ## Internal Layout of WAL Segment
 
-A WAL segment is a 16 MB file, by default, and it is internally divided into pages of 8192 bytes (8 KB). The first page has a header-data defined by the structure XLogLongPageHeaderData, while the headings of all other pages have the page information defined by the structure XLogPageHeaderData. Following the page header, XLOG records are written in each page from the beginning in descending order. See Fig. 9.7.
+A WAL segment is a 16 MB file, by default, and it is internally divided into pages of 8192 bytes (8 KB). The first page has a header-data defined by the structure **XLogLongPageHeaderData**, while the headings of all other pages have the page information defined by the structure **XLogPageHeaderData**. Following the page header, XLOG records are written in each page from the beginning in descending order. See Fig. 9.7.
 
 ## Internal Layout of XLOG Record
 
@@ -44,3 +44,63 @@ Here are some representative examples how resource managers work in the followin
 - Though it is similar for UPDATE statement, the header variable xl_info of the XLOG record is set to 'XLOG_HEAP_UPDATE', and the RM_HEAP's function heap_xlog_update() replays its record when the database recovers.
 
 - When a transaction commits, the header variables xl_rmid and xl_info of its XLOG record are set to 'RM_XACT' and to 'XLOG_XACT_COMMIT' respectively. When recovering the database cluster, the function xact_redo_commit() replays this record.
+
+Data portion of XLOG record is classified into either backup block (entire page) or non-backup block (different data by operation).
+
+```
+typedef struct BkpBlock @ include/access/xlog_internal.h
+{
+  RelFileNode node;        /* relation containing block */
+  ForkNumber  fork;        /* fork within the relation */
+  BlockNumber block;       /* block number */
+  uint16      hole_offset; /* number of bytes before "hole" */
+  uint16      hole_length; /* number of bytes in "hole" */
+
+  /* ACTUAL BLOCK DATA FOLLOWS AT END OF STRUCT */
+} BkpBlock;
+
+typedef struct xl_heap_insert
+{
+   xl_heaptid      target;              /* inserted tuple id */
+   bool            all_visible_cleared; /* PD_ALL_VISIBLE was cleared */
+} xl_heap_insert;
+```
+
+There are different WAL operations defined in heapam_xlog.h:
+```
+/*
+ * WAL record definitions for heapam.c's WAL operations
+ *
+ * XLOG allows to store some information in high 4 bits of log
+ * record xl_info field.  We use 3 for opcode and one for init bit.
+ */
+#define XLOG_HEAP_INSERT                0x00
+#define XLOG_HEAP_DELETE                0x10
+#define XLOG_HEAP_UPDATE                0x20
+#define XLOG_HEAP_TRUNCATE              0x30
+#define XLOG_HEAP_HOT_UPDATE    0x40
+#define XLOG_HEAP_CONFIRM               0x50
+#define XLOG_HEAP_LOCK                  0x60
+#define XLOG_HEAP_INPLACE               0x70
+
+#define XLOG_HEAP_OPMASK                0x70
+/*
+ * When we insert 1st item on new page in INSERT, UPDATE, HOT_UPDATE,
+ * or MULTI_INSERT, we can (and we do) restore entire page in redo
+ */
+#define XLOG_HEAP_INIT_PAGE             0x80
+/*
+ * We ran out of opcodes, so heapam.c now has a second RmgrId.  These opcodes
+ * are associated with RM_HEAP2_ID, but are not logically different from
+ * the ones above associated with RM_HEAP_ID.  XLOG_HEAP_OPMASK applies to
+ * these, too.
+ */
+#define XLOG_HEAP2_REWRITE              0x00
+#define XLOG_HEAP2_CLEAN                0x10
+#define XLOG_HEAP2_FREEZE_PAGE  0x20
+#define XLOG_HEAP2_CLEANUP_INFO 0x30
+#define XLOG_HEAP2_VISIBLE              0x40
+#define XLOG_HEAP2_MULTI_INSERT 0x50
+#define XLOG_HEAP2_LOCK_UPDATED 0x60
+#define XLOG_HEAP2_NEW_CID              0x70
+```
