@@ -23,13 +23,13 @@ Thus, the two methods have different purposes.
 
 On top of that, there's synchronous and asynchronous streaming replication:
 
-In asynchronous streaming replication the replica(s) are allowed to fall behind the master in time when the master is faster/busier. If the master crashes you might lose data that wasn't replicated yet.
+- In asynchronous streaming replication the replica(s) are allowed to fall behind the master in time when the master is faster/busier. If the master crashes you might lose data that wasn't replicated yet.
 
-If the asynchronous replica falls too far behind the master, the master might throw away information the replica needs if wal_keep_segments is too low and no slot is used, meaning you have to re-create the replica from scratch. Or the master's pg_xlog might fill up and stop the master from working until disk space is freed if wal_keep_segments is too high or a slot is used.
+  If the asynchronous replica falls too far behind the master, the master might throw away information the replica needs if wal_keep_segments is too low and no slot is used, meaning you have to re-create the replica from scratch. Or the master's pg_xlog might fill up and stop the master from working until disk space is freed if wal_keep_segments is too high or a slot is used.
 
-In synchronous replication the master doesn't finish committing until a replica has confirmed it received the transaction2. You never lose data if the master crashes and you have to fail over to a replica. The master will never throw away data the replica needs or fill up its xlog and run out of disk space because of replica delays. In exchange it can cause the master to slow down or even stop working if replicas have problems, and it always has some performance impact on the master due to network latency.
+- In synchronous replication the master doesn't finish committing until a replica has confirmed it received the transaction2. You never lose data if the master crashes and you have to fail over to a replica. The master will never throw away data the replica needs or fill up its xlog and run out of disk space because of replica delays. In exchange it can cause the master to slow down or even stop working if replicas have problems, and it always has some performance impact on the master due to network latency.
 
-When there are multiple replicas, only one is synchronous at a time. See synchronous_standby_names.
+  When there are multiple replicas, only one is synchronous at a time. See synchronous_standby_names.
 
 You can't have synchronous log shipping.
 
@@ -39,33 +39,35 @@ You can actually combine log shipping and asynchronous replication to protect ag
 
 On top of that we have logical vs physical streaming replication, as introduced in PostgreSQL 9.4:
 
-In physical streaming replication changes are sent at nearly disk block level, like "at offset 14 of disk page 18 of relation 12311, wrote tuple with hex value 0x2342beef1222....".
+- In physical streaming replication changes are sent at nearly disk block level, like "at offset 14 of disk page 18 of relation 12311, wrote tuple with hex value 0x2342beef1222....".
 
-Physical replication sends everything: the contents of every database in the PostgreSQL install, all tables in every database. It sends index entries, it sends the whole new table data when you VACUUM FULL, it sends data for transactions that rolled back, etc. So it generates a lot of "noise" and sends a lot of excess data. It also requires the replica to be completely identical, so you cannot do anything that'd require a transaction, like creating temp or unlogged tables. Querying the replica delays replication, so long queries on the replica need to be cancelled.
+  Physical replication sends everything: the contents of every database in the PostgreSQL install, all tables in every database. It sends index entries, it sends the whole new table data when you VACUUM FULL, it sends data for transactions that rolled back, etc. So it generates a lot of "noise" and sends a lot of excess data. It also requires the replica to be completely identical, so you cannot do anything that'd require a transaction, like creating temp or unlogged tables. Querying the replica delays replication, so long queries on the replica need to be cancelled.
 
-In exchange, it's simple and efficient to apply the changes on the replica, and the replica is reliably exactly the same as the master. DDL is replicated transparently, just like everything else, so it requires no special handling. It can also stream big transactions as they happen, so there is little delay between commit on the master and commit on the replica even for big changes.
+  In exchange, it's simple and efficient to apply the changes on the replica, and the replica is reliably exactly the same as the master. DDL is replicated transparently, just like everything else, so it requires no special handling. It can also stream big transactions as they happen, so there is little delay between commit on the master and commit on the replica even for big changes.
 
-Physical replication is mature, well tested, and widely adopted.
+  Physical replication is mature, well tested, and widely adopted.
 
-logical streaming replication, new in 9.4, sends changes at a higher level, and much more selectively.
+- logical streaming replication, new in 9.4, sends changes at a higher level, and much more selectively.
 
-It replicates only one database at a time. It sends only row changes and only for committed transactions, and it doesn't have to send vacuum data, index changes, etc. It can selectively send data only for some tables within a database. This makes logical replication much more bandwidth-efficient.
+  It replicates only one database at a time. It sends only row changes and only for committed transactions, and it doesn't have to send vacuum data, index changes, etc. It can selectively send data only for some tables within a database. This makes logical replication much more bandwidth-efficient.
 
-Operating at a higher level also means that you can do transactions on the replica databases. You can create temporary and unlogged tables. Even normal tables, if you want. You can use foreign data wrappers, views, create functions, whatever you like. There's no need to cancel queries if they run too long either.
+  Operating at a higher level also means that you can do transactions on the replica databases. You can create temporary and unlogged tables. Even normal tables, if you want. You can use foreign data wrappers, views, create functions, whatever you like. There's no need to cancel queries if they run too long either.
 
-Logical replication can also be used to build multi-master replication in PostgreSQL, which is not possible using physical replication.
+  Logical replication can also be used to build multi-master replication in PostgreSQL, which is not possible using physical replication.
 
-In exchange, though, it can't (currently) stream big transactions as they happen. It has to wait until they commit. So there can be a long delay between a big transaction committing on the master and being applied to the replica.
+  In exchange, though, it can't (currently) stream big transactions as they happen. It has to wait until they commit. So there can be a long delay between a big transaction committing on the master and being applied to the replica.
 
-It replays transactions strictly in commit order, so small fast transactions can get stuck behind a big transaction and be delayed quite a while.
+  It replays transactions strictly in commit order, so small fast transactions can get stuck behind a big transaction and be delayed quite a while.
 
-DDL isn't handled automatically. You have to keep the table definitions in sync between master and replica yourself, or the application using logical replication has to have its own facilities to do this. It can be complicated to get this right.
+  DDL isn't handled automatically. You have to keep the table definitions in sync between master and replica yourself, or the application using logical replication has to have its own facilities to do this. It can be complicated to get this right.
 
-The apply process its self is more complicated than "write some bytes where I'm told to" as well. It also takes more resources on the replica than physical replication does.
+  The apply process its self is more complicated than "write some bytes where I'm told to" as well. It also takes more resources on the replica than physical replication does.
 
-Current logical replication implementations are not mature or widely adopted, or particularly easy to use.
+  Current logical replication implementations are not mature or widely adopted, or particularly easy to use.
 
-Too many options, tell me what to do. Phew. Complicated, huh? And I haven't even got into the details of delayed replication, slots, wal_keep_segments, timelines, how promotion works, Postgres-XL, BDR and multimaster, etc.
+## Too many options, tell me what to do
+
+Phew. Complicated, huh? And I haven't even got into the details of delayed replication, slots, wal_keep_segments, timelines, how promotion works, Postgres-XL, BDR and multimaster, etc.
 
 So what should you do?
 
@@ -77,10 +79,12 @@ For high availability with zero data loss risk use streaming synchronous replica
 
 For high availability with low data loss risk and better performance you should use asynchronous streaming replication. Either have WAL archiving enabled for fallback or use a replication slot. Monitor how far the replica is behind the master using external tools like Icinga.
 
-References
+## References
 [continuous archiving and PITR](http://www.postgresql.org/docs/current/static/continuous-archiving.html)
 [high availability, load balancing and replication](http://www.postgresql.org/docs/current/static/high-availability.html)
 [replication settings](http://www.postgresql.org/docs/current/static/runtime-config-replication.html)
 [pgbarman](http://www.pgbarman.org/)
 [repmgr](http://www.repmgr.org/)
 [wiki: replication, clustering and connection pooling](https://wiki.postgresql.org/wiki/Replication,_Clustering,_and_Connection_Pooling)
+
+**[source](https://stackoverflow.com/questions/33621906/difference-between-stream-replication-and-logical-replication)**
