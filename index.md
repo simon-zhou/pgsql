@@ -9,8 +9,6 @@ In addition to that, PG also have a **prev** link to the left sibling for revers
  - Index-only Scan (Covering Index)
  - Suffix Truncation
 
-## [WAL](wal.md)
-
 ## B-tree Implementation
 
 [btree_source.md](btree_source.md)
@@ -34,6 +32,10 @@ A: Vacuuming does three things: to remove dead tuples created for MVCC (defragme
 ### Q: Why HOT (Heap Only Tuple) and how does it work?
 
 A: Without HOT, a new index tuple needs to be inserted every time an update happens, due to MVCC. The old index tuple points to the old heap tuple and the new index tuple points to the new heap tuple. With HOT, only new heap tuple is inserted and index tuple doesn't need to be inserted. This way we can save some IO. It works when the new heap tuple is on the same page as the old heap tuple. The old heap tuple will have "pointer" pointing to the new tuple. This is explained [here](http://www.interdb.jp/pg/pgsql07.html).
+
+### Q: How does TOAST (The Oversized Attribute Storage Technique) work?
+
+A: PostgreSQL uses a fixed page size (commonly 8 kB), and does not allow tuples to span multiple pages. Therefore, it is not possible to store very large field values directly. When a row is attempted to be stored that exceeds this size, TOAST basically breaks up the data of large columns into smaller "pieces" and stores them into a TOAST table. Each table you create has its own associated (unique) TOAST table, which may or may not ever end up being used, depending on the size of rows you insert. All of this is transparent to the user and enabled by default. The mechanism is accomplished by splitting up the large column entry into 2KB bytes and storing them as chunks in the TOAST tables. It then stores the length and a pointer to the TOAST entry back where the column is normally stored. Because of how the pointer system is implemented, most TOAST'able column types are limited to a max size of 1GB.
 
 ## References
 [Indexes in PostgreSQL](https://postgrespro.com/blog/pgsql/3994098)
