@@ -109,6 +109,6 @@ In version 9.4 or earlier, there was no common format of XLOG record, so that ea
 
 Data portion of XLOG record can be divided into two parts: header and data. Header part contains zero or more XLogRecordBlockHeaders and zero or one XLogRecordDataHeaderShort (or XLogRecordDataHeaderLong); it must contain at least either one of those. When its record stores full-page image (i.e. backup block), XLogRecordBlockHeader includes XLogRecordBlockImageHeader, and also includes XLogRecordBlockCompressHeader if its block is compressed. Data part is composed of zero or more block data and zero or one main data, which correspond to the XLogRecordBlockHeader(s) and to the XLogRecordDataHeader respectively. Here are a few examples (credit: www.interdb.jp):
 
-<img src="images/xlog.png" alt="hi" class="inline"/>
+<img src="xlog.png" alt="hi" class="inline"/>
 
 
