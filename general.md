@@ -37,3 +37,7 @@ A tsvector value merges different variants of the same word and removes duplicat
 ## Bitmap Index
 
 [Bitmap index](https://en.wikipedia.org/wiki/Bitmap_index) is a technique from data warehouse world. It's most efficient with low cardinality column. It doesn't play well with write-heavy or even moderate concurrent write use case. Oracle has bitmap index while PG doesn't have it.
+
+## Trigger
+
+Triggers are difficult to maintain, because they do someting outside of the mainstream. They may be misused that do something that cannot be rolled back, eg, writing to filesystem or sending email. Details [here](https://blogs.oracle.com/oraclemagazine/the-trouble-with-triggers).
