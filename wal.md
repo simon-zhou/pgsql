@@ -111,4 +111,31 @@ Data portion of XLOG record can be divided into two parts: header and data. Head
 
 <img src="xlog.png" alt="hi" class="inline"/>
 
+Below explains the order of a tuple insert. Be noted that XLogInsert happens within heap_insert and finish_xact_command, XLogWrite happens within finish_xact_command.
+
+```
+exec_simple_query() @postgres.c
+
+(1) ExtendCLOG() @clog.c                  /* Write the state of this transaction
+                                           * "IN_PROGRESS" to the CLOG.
+                                           */
+(2) heap_insert()@heapam.c                /* Insert a tuple, creates a XLOG record,
+                                           * and invoke the function XLogInsert.
+                                           */
+(3)   XLogInsert() @xlog.c (9.5 or later, xloginsert.c)
+                                          /* Write the XLOG record of the inserted tuple
+                                           *  to the WAL buffer, and update page's pd_lsn.
+                                           */
+(4) finish_xact_command() @postgres.c     /* Invoke commit action.*/   
+      XLogInsert() @xlog.c  (9.5 or later, xloginsert.c)
+                                          /* Write a XLOG record of this commit action 
+                                           * to the WAL buffer.
+                                           */
+(5)   XLogWrite() @xlog.c                 /* Write and flush all XLOG records on 
+                                           * the WAL buffer to WAL segment.
+                                           */
+(6) TransactionIdCommitTree() @transam.c  /* Change the state of this transaction 
+                                           * from "IN_PROGRESS" to "COMMITTED" on the CLOG.
+                                           */
+```
 
