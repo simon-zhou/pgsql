@@ -148,4 +148,4 @@ Be noted that SELECT statement may also write xlog records, when deletion of unn
 
 WAL writer is a background process to check the WAL buffer periodically to write all unwritten xlog records into the WAL segments. The purpose of this process is to avoid burst of xlog records. In version 9.1 or earlier, the background writer process did both checkpointing and dirty-page writing.
 
-
+Not to be confused with WAL writer process, checkpointing process prepares database recovery (redo point) and clean dirty pages in the shared buffer pool.
