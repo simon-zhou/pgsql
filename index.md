@@ -37,6 +37,18 @@ A: Without HOT, a new index tuple needs to be inserted every time an update happ
 
 A: PostgreSQL uses a fixed page size (commonly 8 kB), and does not allow tuples to span multiple pages. Therefore, it is not possible to store very large field values directly. When a row is attempted to be stored that exceeds this size, TOAST basically breaks up the data of large columns into smaller "pieces" and stores them into a TOAST table. Each table you create has its own associated (unique) TOAST table, which may or may not ever end up being used, depending on the size of rows you insert. All of this is transparent to the user and enabled by default. The mechanism is accomplished by splitting up the large column entry into 2KB bytes and storing them as chunks in the TOAST tables. It then stores the length and a pointer to the TOAST entry back where the column is normally stored. Because of how the pointer system is implemented, most TOAST'able column types are limited to a max size of 1GB. See details [here](https://www.postgresql.org/docs/current/storage-toast.html)
 
+## Q: Why Vaccum is not needed in MySQL?
+
+A: TLDR: InnoDB uses rollback (undo) logs, more like Oracle's design. Only the most recent version of a row is kept on the main table. It must manage log purging, an asynchronous/delayed operation with a related function to PostgreSQL's VACUUM.
+
+This means more writes to do on updates and makes access to old row versions quite a lot slower, but gets rid of the need for asynchronous vacuum and means you don't have table bloat issues. Instead you can have huge rollback segments or run out of space for rollback.
+
+So it's a trade-off, a design with a different set of advantages and problems.
+
+If you're talking about MyISAM tables, then it's totally different. PostgreSQL's tables won't eat your data. MyISAM will. PostgreSQL's tables are transactional. MyISAM isn't. A flat file doesn't require VACUUM either, that doesn't make it a good idea.
+
+Longer version is that InnoDB still keeps deleted records in place and cleans them up later. See nice [writeup](http://rhaas.blogspot.com/2011/02/mysql-vs-postgresql-part-2-vacuum-vs.html) from Robert.
+
 ## References
 [Indexes in PostgreSQL](https://postgrespro.com/blog/pgsql/3994098)
 
