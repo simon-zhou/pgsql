@@ -9,3 +9,5 @@ Zheap is a new storage engine format with a few goals:
 [Zheap on Github](https://github.com/EnterpriseDB/zheap)
 
 [Future of Storage](https://wiki.postgresql.org/wiki/Future_of_storage)
+
+[DO or UNDO - there is no VACUUM](http://rhaas.blogspot.com/2018/01/do-or-undo-there-is-no-vacuum.html)
