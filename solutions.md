@@ -14,6 +14,10 @@ PostgreSQL Pro
 
 Citus DB
 
+[PostgreSQL Built-in Sharding](https://www.pgconf.asia/JA/2017/wp-content/uploads/sites/2/2017/12/D2-B1.pdf), this uses 2PC and FDW
+
+[Built-in Sharding](https://wiki.postgresql.org/wiki/Built-in_Sharding)
+
 [Next-Generation PostgreSQL Replication via Bi-Directional Multi-Master Pub/Sub](https://www.youtube.com/watch?v=PEEsNOrD6BM)
 
 [The Future of PostgreSQL Multi-Master Replication](https://www.youtube.com/watch?v=4klaPUjbMZo)
