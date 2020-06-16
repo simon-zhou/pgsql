@@ -6,6 +6,13 @@ Stolon is a different approach to set up PG cluster. See introduction [here](htt
 
 2ndQuadrant provides [BDR](https://www.2ndquadrant.com/en/resources/postgres-bdr-2ndquadrant/) (Bidirectional Replication for PostgreSQL) which is built on top of logical decoding.
 
+[PostgreSQL XL](https://www.postgres-xl.org/)
+
+[PostgreSQL XC](https://postgresxc.fandom.com/wiki/Postgres-XC_Wiki)
+
+PostgreSQL Pro
+
+Citus DB
 
 [Next-Generation PostgreSQL Replication via Bi-Directional Multi-Master Pub/Sub](https://www.youtube.com/watch?v=PEEsNOrD6BM)
 
