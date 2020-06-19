@@ -10,6 +10,14 @@ Stolon is a different approach to set up PG cluster. See introduction [here](htt
 
 [PostgreSQL XC](https://postgresxc.fandom.com/wiki/Postgres-XC_Wiki)
 
+[Londiste] (https://wiki.postgresql.org/wiki/Londiste_Tutorial_(Skytools_2))
+
+[Slony](https://www.slony.info/)
+
+[xDB Replication Server](https://www.enterprisedb.com/enterprise-postgres/edb-postgres-replication-server)
+
+[Bucardo](https://bucardo.org/Bucardo/)
+
 PostgreSQL Pro
 
 Citus DB
