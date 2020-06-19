@@ -81,10 +81,15 @@ For high availability with low data loss risk and better performance you should 
 
 ## References
 [continuous archiving and PITR](http://www.postgresql.org/docs/current/static/continuous-archiving.html)
+
 [high availability, load balancing and replication](http://www.postgresql.org/docs/current/static/high-availability.html)
+
 [replication settings](http://www.postgresql.org/docs/current/static/runtime-config-replication.html)
+
 [pgbarman](http://www.pgbarman.org/)
+
 [repmgr](http://www.repmgr.org/)
+
 [wiki: replication, clustering and connection pooling](https://wiki.postgresql.org/wiki/Replication,_Clustering,_and_Connection_Pooling)
 
 **[source](https://stackoverflow.com/questions/33621906/difference-between-stream-replication-and-logical-replication)**
