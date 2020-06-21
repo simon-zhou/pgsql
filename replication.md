@@ -63,7 +63,7 @@ On top of that we have logical vs physical streaming replication, as introduced 
 
   The apply process its self is more complicated than "write some bytes where I'm told to" as well. It also takes more resources on the replica than physical replication does.
 
-  Current logical replication implementations are not mature or widely adopted, or particularly easy to use.
+  Current logical replication implementations are not mature or widely adopted, or particularly easy to use. There are also some [limitations](https://www.postgresql.org/docs/10/logical-replication-restrictions.html).
 
 ## Too many options, tell me what to do
 
