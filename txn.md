@@ -10,6 +10,13 @@ Unfortunately, the SQL standard's definition of isolation levels is flawed - it 
 
 Different databases use different techniques to implement serializable isolation. PG uses MVCC and serialization graph cycle detection while other databases (InnoDB, SQL Server) use MVCC and lock-based serializable. See details [here](https://www.slideshare.net/MarkusWinand/sql-transactions-what-they-are-good-for-and-how-they-work).
 
+## Snapshot Isolation
+
+Unlike serializability, which enforces a total order of transactions, snapshot isolation only forces a partial order: sub-operations in one transaction may interleave with those from other transactions. The most notable phenomena allowed by snapshot isolation are write skews, which allow transactions to read overlapping state, modify disjoint sets of objects, then commit; and a read-only transaction anomaly, involving partially disjoint write sets.
+
+Snapshot isolation implies read committed. However, it does not impose any real-time constraints.
+
+
 ## References:
 
 [Consistency Models](https://jepsen.io/consistency), from [jepsen](https://jepsen.io/)
