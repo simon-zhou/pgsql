@@ -16,6 +16,11 @@ Unlike serializability, which enforces a total order of transactions, snapshot i
 
 Snapshot isolation implies read committed. However, it does not impose any real-time constraints.
 
+## Serializability
+
+Informally, serializability means that transactions appear to have occurred in some total order. Serializability implies repeatable read, snapshot isolation, etc. However, it does not impose any real-time, or even per-process constraints. If process A completes write w, then process B begins a read r, r is not necessarily guaranteed to observe w. For those kinds of real-time guarantees, see strict serializable.
+
+
 
 ## References:
 
