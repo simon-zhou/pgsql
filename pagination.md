@@ -30,3 +30,5 @@ select * from contact_type where (created_at,id) < ('2018-11-28 19:39:45.109256'
 ## References:
 
 [Paging Through Results](https://use-the-index-luke.com/sql/partial-results/fetch-next-page)
+
+[Faster SQL Pagination with jOOQ Using the Seek Method](https://blog.jooq.org/2013/10/26/faster-sql-paging-with-jooq-using-the-seek-method/)
